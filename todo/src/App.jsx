@@ -1,6 +1,7 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Row from './components/Row';
 
 const url = 'http://localhost:3001/';
 
@@ -9,23 +10,35 @@ function App() {
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState([]);
 
-  // useEffect(() => {
-  //   axios.get(url)
-  //   .then(response => {
-  //     setTasks(response.data)
-  //   }).catch(error => {
-  //     alert(error.response.data.error ? error.response.data.error : error)
-  //   });
-  // });
+  useEffect(() => {
+    axios.get(url)
+    .then(response => {
+      setTasks(response.data)
+    }).catch(error => {
+      alert(error.response.data.error ? error.response.data.error : error)
+    });
+  }, []);
 
   const addTask = () => {
-    setTasks([...tasks, task]);
-    setTask('');
+    axios.post(url + 'create', {
+      description: task
+    })
+    .then(response => {
+      setTasks([...tasks, {id: response.data.id, description: task}]);
+      setTask('');
+    }).catch(error => {
+      alert(error.response.data.error ? error.response.data.error : error)
+    });
   }
 
-  const deleteTask = (del) => {
-    const withoutRemoved = tasks.filter((item) => item !== del);
-    setTasks(withoutRemoved);
+  const deleteTask = (id) => {
+    axios.delete(url + 'delete/' + id)
+    .then(response => {
+      const withoutRemoved = tasks.filter((item) => item.id !== id);
+      setTasks(withoutRemoved);
+    }).catch(error => {
+      alert(error.response.data.error ? error.response.data.error : error)
+    });
   }
 
   return (
@@ -45,15 +58,14 @@ function App() {
         />
       </form>
       <ul>
-        {tasks.map(v => (
-          <li>
-            {v}
-            <button className='delete-button' onClick={() => deleteTask(v)}>Delete</button>
-          </li>
-        ))}
+        {
+          tasks.map(item => (
+            <Row key={item.id} item={item} deleteTask={deleteTask}/>
+          ))
+        }
       </ul>
     </div>
   )
 }
 
-export default App
+export default App;
