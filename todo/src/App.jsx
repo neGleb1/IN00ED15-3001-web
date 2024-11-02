@@ -1,10 +1,22 @@
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const url = 'http://localhost:3001/';
 
 function App() {
 
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState([]);
+
+  // useEffect(() => {
+  //   axios.get(url)
+  //   .then(response => {
+  //     setTasks(response.data)
+  //   }).catch(error => {
+  //     alert(error.response.data.error ? error.response.data.error : error)
+  //   });
+  // });
 
   const addTask = () => {
     setTasks([...tasks, task]);
