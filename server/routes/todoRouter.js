@@ -1,4 +1,5 @@
-import {pool} from '../db.js';
+import {pool} from '../helper/db.js';
+import {auth} from '../helper/auth.js';
 import {Router} from "express";
 
 const todoRouter = Router();
@@ -35,27 +36,27 @@ const deleteTask = async (id) => {
 todoRouter.get('/', async (req, res, next) => {
     try {
         const result = await getTasks();
-        res.status(200).json(result);
+        return res.status(200).json(result);
     } catch (err) {
     //   res.status(500).json({ error: err.message || err.toString() });
     return next(err);
     }
 });
 
-todoRouter.post('/create', async (req, res) => {
+todoRouter.post('/create', auth, async (req, res, next) => {
     try {
         const result = await insert(req.body.description);
-        res.status(200).json(result);
+        return res.status(200).json(result);
     } catch (err) {
     //   res.status(500).json({ error: err.message || err.toString() });
     return next(err);
     }
 });
 
-todoRouter.delete('/delete/:id', async (req, res) => {
+todoRouter.delete('/delete/:id', auth, async (req, res, next) => {
     try {
         const result = await deleteTask(parseInt(req.params.id));
-        res.status(200).json({id: req.params.id});
+        return res.status(200).json({id: req.params.id});
     } catch (err) {
     //   res.status(500).json({ error: err.message || err.toString() });
     return next(err);
