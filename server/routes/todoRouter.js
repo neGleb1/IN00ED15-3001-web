@@ -24,9 +24,9 @@ const insert = async (description) => {
 }
 
 const deleteTask = async (id) => {
-    try {
+    try {        
         const res = await pool.query('delete from task where id = $1', [id]);
-        return typeof(id) !== "string" ? res.rows[0] : {error: "id is NaN"};
+        return res.rows[0];
     } catch (err) {
         console.error(err);
         return {error: err};
@@ -38,27 +38,34 @@ todoRouter.get('/', async (req, res, next) => {
         const result = await getTasks();
         return res.status(200).json(result);
     } catch (err) {
-    //   res.status(500).json({ error: err.message || err.toString() });
     return next(err);
     }
 });
 
 todoRouter.post('/create', auth, async (req, res, next) => {
     try {
+        if(!req.body.description || req.body.description.length === 0){
+            const error = new Error("Invalid description for a task")
+            error.statusCode = 400
+            return next(error)
+        }
         const result = await insert(req.body.description);
         return res.status(200).json(result);
     } catch (err) {
-    //   res.status(500).json({ error: err.message || err.toString() });
     return next(err);
     }
 });
 
 todoRouter.delete('/delete/:id', auth, async (req, res, next) => {
     try {
+        if(!req.params.id){
+            const error = new Error('Task id is not provided')
+            error.statusCode = 400
+            return next(error)
+        }
         const result = await deleteTask(parseInt(req.params.id));
         return res.status(200).json({id: req.params.id});
     } catch (err) {
-    //   res.status(500).json({ error: err.message || err.toString() });
     return next(err);
     }
 });
